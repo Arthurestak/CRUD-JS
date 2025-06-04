@@ -2,7 +2,7 @@ const express = require("express")
 const cors = require("cors")
 const bcrypt = require("bcrypt")
 const db = require("./db")
-const validaSenha = require("./funcoes");
+const validadorCadastro = require("./validadorCadastro");
 
 const app = express()
 app.use(cors())
@@ -11,7 +11,19 @@ app.use(express.json())
 app.post("/pessoa", async (req, res) => {
     try{
         const {nome,email,senha} = req.body;
-        if(validaSenha(senha) == true){
+        if(nome.length > 45){
+            res.json({message: "O nome deve conter menos de 45 caracteres!"})
+            return
+        }
+        if(email.length > 50){
+            res.json({message: "O email deve conter menos de 50 caracteres!"})
+            return
+        }
+        if(senha.length > 20){
+            res.json({message: "A senha deve conter menos de 20 caracteres!"})
+            return
+        }
+        if(validadorCadastro(nome, email, senha) == true){
             
             const senhaCriptografada = await bcrypt.hash(senha,10)
             
@@ -25,7 +37,7 @@ app.post("/pessoa", async (req, res) => {
             })
             return
         }
-        res.json({message: "Senha não corresponde com os requisitos!"})
+        res.json({message: "Os campos não correspondem!"})
 
 
     } catch (error){
